@@ -3,13 +3,14 @@ package overrides
 import (
 	"bytes"
 	"fmt"
-	"golang.zx2c4.com/wireguard/conn"
-	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun/netstack"
 	"net/netip"
 	"strconv"
 	"syscall"
 	"time"
+
+	"golang.zx2c4.com/wireguard/conn"
+	"golang.zx2c4.com/wireguard/device"
 )
 
 func Connect(fd int, sa syscall.Sockaddr) (err error) {
