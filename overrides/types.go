@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net"
 	"os"
+	"path/filepath"
 )
 
 type connConfig struct {
@@ -15,15 +16,15 @@ type connConfig struct {
 	ServerPort string `json:"serverPort"`
 	AllowedIp  string `json:"allowedIp"`
 	Network    string `json:"network"` //TODO: make it useful:)
-	Address    string `json:"address"`
 }
 
 func newConnConfig(file *os.File) (c *connConfig, err error) {
-	buff := make([]byte, 1024, 1024)
+	buff := make([]byte, 4096, 4096)
 	n, err := file.Read(buff)
 	if err != nil {
 		return nil, err
 	}
+	c = new(connConfig)
 	err = json.Unmarshal(buff[:n], c)
 	if err != nil {
 		return nil, err
@@ -32,7 +33,8 @@ func newConnConfig(file *os.File) (c *connConfig, err error) {
 }
 
 var (
-	file, _   = os.Open("config.json")
-	config, _ = newConnConfig(file)
-	conns     map[int]*net.Conn
+	absPath, _ = filepath.Abs("./overrides/config.json")
+	file, _    = os.Open(absPath)
+	config, _  = newConnConfig(file)
+	conns      = make(map[int]*net.Conn)
 )

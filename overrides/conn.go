@@ -3,14 +3,12 @@ package overrides
 import (
 	"bytes"
 	"fmt"
+	"golang.zx2c4.com/wireguard/conn"
+	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun/netstack"
 	"net/netip"
 	"strconv"
 	"syscall"
-	"time"
-
-	"golang.zx2c4.com/wireguard/conn"
-	"golang.zx2c4.com/wireguard/device"
 )
 
 func Connect(fd int, sa syscall.Sockaddr) (err error) {
@@ -38,10 +36,10 @@ func connect4(fd int, sa *syscall.SockaddrInet4) (err error) {
 	}
 	dev := device.NewDevice(tun, conn.NewDefaultBind(), device.NewLogger(device.LogLevelVerbose, ""))
 	err = dev.IpcSet(fmt.Sprintf(`private_key=%s
-	public_key=%s
-	endpoint=%s
-	allowed_ip=%s
-	`, config.PrivateKey, config.PublicKey, config.ServerAddr+":"+config.ServerPort, config.AllowedIp))
+public_key=%s
+endpoint=%s
+allowed_ip=%s
+`, config.PrivateKey, config.PublicKey, config.ServerAddr+":"+config.ServerPort, config.AllowedIp))
 	if err != nil {
 		return err
 	}
@@ -49,11 +47,15 @@ func connect4(fd int, sa *syscall.SockaddrInet4) (err error) {
 	if err != nil {
 		return err
 	}
-	socket, err := tnet.Dial("tcp", string([]byte{sa.Addr[0], sa.Addr[1], sa.Addr[2], sa.Addr[3]})+strconv.Itoa(sa.Port))
-	err = socket.SetReadDeadline(time.Now().Add(time.Second * 10))
+	address := strconv.Itoa(int(sa.Addr[0])) + "." + strconv.Itoa(int(sa.Addr[1])) + "." + strconv.Itoa(int(sa.Addr[2])) + "." + strconv.Itoa(int(sa.Addr[3])) + ":" + strconv.Itoa(sa.Port)
+	socket, err := tnet.Dial(config.Network, address)
+	if err != nil {
+		return err
+	}
+	/*err = socket.SetReadDeadline(time.Now().Add(time.Second * 10))
 	if err != nil {
 		return nil
-	}
+	}*/
 	conns[fd] = &socket
 	return nil
 }
