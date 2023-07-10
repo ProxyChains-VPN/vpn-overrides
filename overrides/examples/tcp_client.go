@@ -28,10 +28,18 @@ func main() {
 		if _, err := overrides.Write(128, []byte(buff)[:len(buff)]); err != nil {
 			log.Panic(err)
 		}
+		if buff == "/exit" {
+			break
+		}
 		n, err := overrides.Read(128, []byte(buff))
 		if err != nil {
 			log.Panic(err)
 		}
 		log.Printf("Server: %s\n", buff[:n])
+	}
+
+	log.Println("Exit...")
+	if err := overrides.Close(128); err != nil {
+		log.Panic(err)
 	}
 }

@@ -52,10 +52,6 @@ allowed_ip=%s
 	if err != nil {
 		return err
 	}
-	/*err = socket.SetReadDeadline(time.Now().Add(time.Second * 10))
-	if err != nil {
-		return nil
-	}*/
 	conns[fd] = &socket
 	return nil
 }
